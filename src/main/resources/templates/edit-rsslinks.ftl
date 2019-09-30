@@ -1,7 +1,7 @@
 <#import "parts/common.ftl" as wrap>
+<#import "parts/logcontrol.ftl" as l>
 <@wrap.page>
     <div>Ссылки на RSS ресурсы</div>
-
     <table class="table table-striped">
         <thead>
         <tr>
@@ -13,7 +13,7 @@
 
             <tr>
                 <td>${link.url} </td>
-                <td><a href="/delete?id=${link.id}"
+                <td><a href="/delete?id=${link.url}"
                        onclick="if(!(confirm('Are you sure you want to delete this customer?'))) return false">
                         Delete</a>
                 </td>
@@ -27,13 +27,14 @@
     </table>
     <br>
 
-    <form method="post">
+    <form method="post" name="add">
         <div class="form-group">
             <input type="text" name="url" class="form-control" aria-describedby="emailHelp"
                    placeholder="Введите url для RSS">
         </div>
+       <#-- <input type="hidden" name="_csrf" value="${_csrf.token}"/>-->
         <button type="submit" class="btn btn-secondary">Добавить</button>
     </form>
 
-
+   <@l.logout />
 </@wrap.page>
