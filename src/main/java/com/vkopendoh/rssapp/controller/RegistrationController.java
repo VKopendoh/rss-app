@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.util.Collections;
 
 @Controller
-public class RegController {
+public class RegistrationController {
 
     @Autowired
     UserRepository userRepository;

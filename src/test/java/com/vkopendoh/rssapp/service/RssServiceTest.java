@@ -23,7 +23,7 @@ public class RssServiceTest {
 
     @Test
     public void parse() {
-        List<RssData> dataList = rssService.parse("https://testguild.com/feed/");
+        List<RssData> dataList = rssService.parseToRssData("https://testguild.com/feed/");
         RssData data = dataList.get(0);
         Assert.assertTrue(data.getTitle().equals("Selenide a Java Based Automation Framework Overview"));
 
@@ -31,7 +31,7 @@ public class RssServiceTest {
 
     @Test
     public void getLinkFromRepo() {
-        RssLink link = rssService.getLinkFromRepo("https://testguild.com/feed/");
+        RssLink link = rssService.getLinkByUrl("https://testguild.com/feed/");
         LocalDate ld = LocalDate.of(2015, 12, 17);
         Assert.assertTrue(ld.equals(link.getPubTime().toLocalDateTime().toLocalDate()));
     }
@@ -40,7 +40,7 @@ public class RssServiceTest {
     public void saveLink() {
         RssLink link = new RssLink("http://localhost/rss");
         rssService.saveLink(link);
-        RssLink linkRepo = rssService.getLinkFromRepo(link.getUrl());
+        RssLink linkRepo = rssService.getLinkByUrl(link.getUrl());
         Assert.assertTrue(link.getUrl().equals(linkRepo.getUrl()));
     }
 }

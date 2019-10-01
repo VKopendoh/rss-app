@@ -13,7 +13,7 @@
 
             <tr>
                 <td>${link.url} </td>
-                <td><a href="/delete?id=${link.url}"
+                <td><a href="/delete?url=${link.url}"
                        onclick="if(!(confirm('Are you sure you want to delete this customer?'))) return false">
                         Delete</a>
                 </td>

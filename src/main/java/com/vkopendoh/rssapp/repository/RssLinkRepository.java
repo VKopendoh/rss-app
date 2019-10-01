@@ -1,7 +1,9 @@
 package com.vkopendoh.rssapp.repository;
 
 import com.vkopendoh.rssapp.model.RssLink;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface RssLinkRepository extends CrudRepository<RssLink, String> {
+@Repository
+public interface RssLinkRepository extends JpaRepository<RssLink, String> {
 }

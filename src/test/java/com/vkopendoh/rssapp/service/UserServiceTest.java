@@ -21,7 +21,7 @@ public class UserServiceTest {
     public void getUserFromRepo() {
         User user = new User("User");
         user.setId(1L);
-        User fromDb = userService.getUserFromRepo(user);
+        User fromDb = userService.getUserById(user.getId());
         Assert.assertTrue(user.getUsername().equals(fromDb.getUsername()));
     }
 
@@ -29,7 +29,7 @@ public class UserServiceTest {
     public void addUser() {
         User user = new User("Test");
         userService.addUser(user);
-        User dbUser = userService.getUserFromRepo(user);
+        User dbUser = userService.getUserById(user.getId());
         Assert.assertTrue(dbUser.getUsername().equals(user.getUsername()));
     }
 }

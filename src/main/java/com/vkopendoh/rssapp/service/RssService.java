@@ -20,7 +20,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
@@ -34,54 +33,65 @@ import java.io.InputStream;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class RssService extends AbstractRssFeedView {
 
-    @Autowired
-    RssLinkRepository rssLinkRepository;
+    private final RssLinkRepository rssLinkRepository;
 
-    @Autowired
-    RssDataRepository rssDataRepository;
+    private final RssDataRepository rssDataRepository;
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public RssService(RssLinkRepository rssLinkRepository,
+                      RssDataRepository rssDataRepository, UserRepository userRepository) {
+        this.rssLinkRepository = rssLinkRepository;
+        this.rssDataRepository = rssDataRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
-    protected void buildFeedMetadata(Map<String, Object> model, Channel feed, HttpServletRequest request) {
+    protected void buildFeedMetadata(Map<String, Object> model, Channel feed,
+                                     HttpServletRequest request) {
         feed.setEncoding("windows-1251");
         feed.setTitle("RSS аггрегатор новостей");
         feed.setDescription("Все наиболее интересные и последние новости в одном месте.");
         feed.setLink("http://www.kami-shop.ru/");
-        feed.setPubDate(new java.sql.Date(Calendar.getInstance().getTime().getTime()));
+        feed.setPubDate(Timestamp.valueOf(LocalDateTime.now()));
     }
 
     @Override
-    protected List<Item> buildFeedItems(Map<String, Object> map, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+    protected List<Item> buildFeedItems(Map<String, Object> map, HttpServletRequest httpServletRequest,
+                                        HttpServletResponse httpServletResponse) throws Exception {
         User currentUser = (User) map.get("user");
         User user = userRepository.findById(currentUser.getId()).orElseGet(() -> currentUser);
         List<RssLink> rssLinks = user.getRssLinks();
-        Page<RssData> rssDataList = rssDataRepository.findAllRecentRssDataWithConstrains(rssLinks, Pageable.unpaged());
+        Page<RssData> rssDataList = rssDataRepository.findRssDataByUserRssLinks(rssLinks, Pageable.unpaged());
         List<Item> resultRss = new ArrayList<>();
 
-        rssDataList.forEach(data -> {
-            Item entry = new Item();
-            entry.setTitle(data.getTitle());
-            entry.setLink(data.getUrl());
-            entry.setPubDate(Timestamp.valueOf(data.getDateTime()));
-            List<Enclosure> enclosures = new ArrayList<>();
-            Enclosure enc = new Enclosure();
-            enc.setUrl(data.getImage());
-            enclosures.add(enc);
-            entry.setEnclosures(enclosures);
-            resultRss.add(entry);
-        });
+        rssDataList.forEach(rssData -> resultRss.add(rssItemBuilder(rssData)));
         return resultRss;
     }
 
+    private static Item rssItemBuilder(RssData rssData) {
+        Item entry = new Item();
+        entry.setTitle(rssData.getTitle());
+        entry.setLink(rssData.getUrl());
+        entry.setPubDate(Timestamp.valueOf(rssData.getDateTime()));
+        List<Enclosure> enclosures = new ArrayList<>();
+        Enclosure enc = new Enclosure();
+        enc.setUrl(rssData.getImage());
+        enclosures.add(enc);
+        entry.setEnclosures(enclosures);
+        return entry;
+    }
+
     @Async
-    public List<RssData> parse(String url) {
+    public List<RssData> parseToRssData(String url) {
         List<RssData> rssEntries = new ArrayList<>();
         try (CloseableHttpClient client = HttpClients.createMinimal()) {
             HttpUriRequest request = new HttpGet(url);
@@ -103,8 +113,9 @@ public class RssService extends AbstractRssFeedView {
                     if (enc != null && enc.getType().contains("image")) {
                         imageUrl = enc.getUrl();
                     }
-                    RssData rssEntry = new RssData(entry.getLink(), entry.getTitle(), imageUrl
-                            , LocalDateTime.ofInstant(entry.getPublishedDate().toInstant(), ZoneId.systemDefault()), new RssLink(url));
+                    RssData rssEntry = new RssData(entry.getLink(), entry.getTitle(), imageUrl,
+                            LocalDateTime.ofInstant(entry.getPublishedDate().toInstant(),
+                                    ZoneId.systemDefault()), new RssLink(url));
                     rssEntries.add(rssEntry);
                 }
 
@@ -117,8 +128,9 @@ public class RssService extends AbstractRssFeedView {
         return rssEntries;
     }
 
-    public RssLink getLinkFromRepo(String url) {
-        return rssLinkRepository.findById(url).orElseGet(() -> new RssLink(url, Timestamp.valueOf(LocalDateTime.now())));
+    public RssLink getLinkByUrl(String url) {
+        return rssLinkRepository.findById(url).orElseGet(() -> new RssLink(url,
+                Timestamp.valueOf(LocalDateTime.now())));
     }
 
     public void saveLink(RssLink link) {
@@ -126,10 +138,10 @@ public class RssService extends AbstractRssFeedView {
     }
 
     public void saveDataByLink(RssLink link) {
-        rssDataRepository.saveAll(parse(link.getUrl()));
+        rssDataRepository.saveAll(parseToRssData(link.getUrl()));
     }
 
     public Page<RssData> getDataByRssLinks(List<RssLink> rssLinks, Pageable pageable) {
-        return rssDataRepository.findAllRecentRssDataWithConstrains(rssLinks, pageable);
+        return rssDataRepository.findRssDataByUserRssLinks(rssLinks, pageable);
     }
 }

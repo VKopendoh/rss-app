@@ -27,7 +27,7 @@ public class RssDataTest {
 
     @Test
     public void saveDataAndGetDataByLink() {
-        RssLink link = rssService.getLinkFromRepo("https://testguild.com/feed/");
+        RssLink link = rssService.getLinkByUrl("https://testguild.com/feed/");
         rssService.saveDataByLink(link);
         List<RssLink> links = new ArrayList<>();
         links.add(link);
