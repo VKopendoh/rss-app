@@ -43,5 +43,4 @@ public class RssServiceTest {
         RssLink linkRepo = rssService.getLinkFromRepo(link.getUrl());
         Assert.assertTrue(link.getUrl().equals(linkRepo.getUrl()));
     }
-
 }

@@ -33,9 +33,9 @@
             <input type="text" name="url" class="form-control" pattern="https?://.+" title="Input url"
                    placeholder="Введите url для RSS">
         </div>
-       <#-- <input type="hidden" name="_csrf" value="${_csrf.token}"/>-->
+        <#-- <input type="hidden" name="_csrf" value="${_csrf.token}"/>-->
         <button type="submit" class="btn btn-secondary">Добавить</button>
     </form>
 
-   <@l.logout />
+    <@l.logout />
 </@wrap.page>

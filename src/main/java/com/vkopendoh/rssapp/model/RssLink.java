@@ -60,7 +60,6 @@ public class RssLink {
         return rssDataList;
     }
 
-
     public void setRssDataList(List<RssData> rssDataList) {
         this.rssDataList = rssDataList;
     }

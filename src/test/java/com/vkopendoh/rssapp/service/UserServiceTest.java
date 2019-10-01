@@ -9,8 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.junit.Assert.*;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Sql({"/data.sql"})
@@ -19,7 +17,7 @@ public class UserServiceTest {
     @Autowired
     UserService userService;
 
-   @Test
+    @Test
     public void getUserFromRepo() {
         User user = new User("User");
         user.setId(1L);
@@ -29,9 +27,9 @@ public class UserServiceTest {
 
     @Test
     public void addUser() {
-       User user = new User("Test");
-       userService.addUser(user);
-       User dbUser = userService.getUserFromRepo(user);
-       Assert.assertTrue(dbUser.getUsername().equals(user.getUsername()));
+        User user = new User("Test");
+        userService.addUser(user);
+        User dbUser = userService.getUserFromRepo(user);
+        Assert.assertTrue(dbUser.getUsername().equals(user.getUsername()));
     }
 }

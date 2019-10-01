@@ -64,8 +64,7 @@ public class MainController {
     public String showRssList(@AuthenticationPrincipal User user, Model model, @PageableDefault Pageable pageable) {
         User currentUser = userService.getUserFromRepo(user);
         List<RssLink> rssLinks = currentUser.getRssLinks();
-        Page<RssData> rssDataList = rssService.getDataByRssLinks(rssLinks,pageable);
-
+        Page<RssData> rssDataList = rssService.getDataByRssLinks(rssLinks, pageable);
         model.addAttribute("url", "/rss-list");
         model.addAttribute("rssdatalist", rssDataList);
         return "rss-list";

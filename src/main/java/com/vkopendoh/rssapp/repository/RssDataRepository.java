@@ -13,7 +13,6 @@ import java.util.List;
 public interface RssDataRepository extends CrudRepository<RssData, String> {
     @Query(
             value = "select r from RssData r where r.link in :links order by r.dateTime desc "
-
     )
     Page<RssData> findAllRecentRssDataWithConstrains(@Param("links") List<RssLink> links, Pageable pageable);
 }

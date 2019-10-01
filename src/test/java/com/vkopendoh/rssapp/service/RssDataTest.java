@@ -35,5 +35,4 @@ public class RssDataTest {
         Long el = dataList.getTotalElements();
         Assert.assertTrue(el == 10);
     }
-
 }
