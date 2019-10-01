@@ -29,7 +29,8 @@
 
     <form method="post" name="add">
         <div class="form-group">
-            <input type="text" name="url" class="form-control" aria-describedby="emailHelp"
+
+            <input type="text" name="url" class="form-control" pattern="https?://.+" title="Input url"
                    placeholder="Введите url для RSS">
         </div>
        <#-- <input type="hidden" name="_csrf" value="${_csrf.token}"/>-->

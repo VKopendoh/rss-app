@@ -2,6 +2,8 @@ package com.vkopendoh.rssapp.repository;
 
 import com.vkopendoh.rssapp.model.RssData;
 import com.vkopendoh.rssapp.model.RssLink;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -13,5 +15,5 @@ public interface RssDataRepository extends CrudRepository<RssData, String> {
             value = "select r from RssData r where r.link in :links order by r.dateTime desc "
 
     )
-    List<RssData> findAllRecentRssDataWithConstrains(@Param("links") List<RssLink> links);
+    Page<RssData> findAllRecentRssDataWithConstrains(@Param("links") List<RssLink> links, Pageable pageable);
 }

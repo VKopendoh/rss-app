@@ -1,4 +1,4 @@
-package com.vkopendoh.rssapp.beans;
+package com.vkopendoh.rssapp.service;
 
 import com.vkopendoh.rssapp.model.RssLink;
 import com.vkopendoh.rssapp.repository.RssDataRepository;

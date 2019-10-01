@@ -1,4 +1,4 @@
-package com.vkopendoh.rssapp.beans;
+package com.vkopendoh.rssapp.service;
 
 import com.rometools.rome.feed.rss.Channel;
 import com.rometools.rome.feed.rss.Enclosure;
@@ -13,6 +13,7 @@ import com.vkopendoh.rssapp.model.RssData;
 import com.vkopendoh.rssapp.model.RssLink;
 import com.vkopendoh.rssapp.model.User;
 import com.vkopendoh.rssapp.repository.RssDataRepository;
+import com.vkopendoh.rssapp.repository.RssLinkRepository;
 import com.vkopendoh.rssapp.repository.UserRepository;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -20,6 +21,8 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.view.feed.AbstractRssFeedView;
@@ -35,6 +38,9 @@ import java.util.*;
 
 @Service
 public class RssService extends AbstractRssFeedView {
+
+    @Autowired
+    RssLinkRepository rssLinkRepository;
 
     @Autowired
     RssDataRepository rssDataRepository;
@@ -56,8 +62,7 @@ public class RssService extends AbstractRssFeedView {
         User currentUser = (User) map.get("user");
         User user = userRepository.findById(currentUser.getId()).orElseGet(() -> currentUser);
         List<RssLink> rssLinks = user.getRssLinks();
-        List<RssData> rssDataList = rssDataRepository.findAllRecentRssDataWithConstrains(rssLinks);
-
+        Page<RssData> rssDataList = rssDataRepository.findAllRecentRssDataWithConstrains(rssLinks, Pageable.unpaged());
         List<Item> resultRss = new ArrayList<>();
 
         rssDataList.forEach(data -> {
@@ -82,13 +87,12 @@ public class RssService extends AbstractRssFeedView {
             HttpUriRequest request = new HttpGet(url);
             try (CloseableHttpResponse response = client.execute(request);
                  InputStream stream = response.getEntity().getContent()) {
-                SyndFeedInput input = new SyndFeedInput();
 
+                SyndFeedInput input = new SyndFeedInput();
                 SyndFeed feed = input.build(new XmlReader(stream));
-                System.out.println(feed.getTitle());
-                System.out.println(feed.getPublishedDate());
                 List entries = feed.getEntries();
                 Iterator itRSSs = entries.iterator();
+
                 while (itRSSs.hasNext()) {
                     SyndEntry entry = (SyndEntry) itRSSs.next();
                     String imageUrl = "https://www.x-forces.com/wp-content/uploads/2019/07/placeholder.png";
@@ -111,5 +115,21 @@ public class RssService extends AbstractRssFeedView {
             e.printStackTrace();
         }
         return rssEntries;
+    }
+
+    public RssLink getLinkFromRepo(String url) {
+        return rssLinkRepository.findById(url).orElseGet(() -> new RssLink(url, Timestamp.valueOf(LocalDateTime.now())));
+    }
+
+    public void saveLink(RssLink link) {
+        rssLinkRepository.save(link);
+    }
+
+    public void saveDataByLink(RssLink link) {
+        rssDataRepository.saveAll(parse(link.getUrl()));
+    }
+
+    public Page<RssData> getDataByRssLinks(List<RssLink> rssLinks, Pageable pageable) {
+        return rssDataRepository.findAllRecentRssDataWithConstrains(rssLinks, pageable);
     }
 }

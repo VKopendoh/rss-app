@@ -1,6 +1,6 @@
 package com.vkopendoh.rssapp.config;
 
-import com.vkopendoh.rssapp.beans.UserService;
+import com.vkopendoh.rssapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -20,7 +20,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/", "/registration").permitAll().and()
+                .antMatchers("/", "/registration","/test").permitAll().and()
                 .authorizeRequests().antMatchers("/console/**").permitAll()
                 .anyRequest().authenticated()
                 .and()

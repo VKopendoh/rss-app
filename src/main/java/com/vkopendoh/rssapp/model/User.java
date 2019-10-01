@@ -29,6 +29,13 @@ public class User implements UserDetails {
             inverseJoinColumns = {@JoinColumn(name = "rsslink_id")})
     private List<RssLink> rssLinks;
 
+    public User() {
+    }
+
+    public User(String username) {
+        this.username = username;
+    }
+
     public Long getId() {
         return id;
     }
